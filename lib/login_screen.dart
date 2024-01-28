@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/webviewcommon.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'multiple_user_screen.dart';
 
 class LoginPage extends StatefulWidget {
@@ -11,6 +13,8 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   bool isPasswordVisible = false;
   int selectedRadio = 0;
   String? selectedAcademicYear;
@@ -21,7 +25,8 @@ class _LoginPageState extends State<LoginPage> {
   String supportTiming = '';
   List<Map<String, dynamic>> academicDataList = [];
 
-  
+  var baseUrl =
+      'https://dds-erp.com/olps-mobile/MobileAppLogin/mobileForcefullyLoginNew/';
 
   @override
   void initState() {
@@ -33,14 +38,17 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> fetchAcademicList() async {
     try {
-      final response = await http.get(Uri.parse("https://dds-erp.com/olps/mobile/MobileCommon/get_academic_list"));
+      final response = await http.get(Uri.parse(
+          "https://dds-erp.com/olps/mobile/MobileCommon/get_academic_list"));
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+        final Map<String, dynamic> data =
+            json.decode(utf8.decode(response.bodyBytes));
         if (data['status'] == true) {
           final List<dynamic> academicList = data['academic_year_list'];
           if (academicList.isNotEmpty) {
             setState(() {
               academicDataList = List<Map<String, dynamic>>.from(academicList);
+              print('academicDataList   $academicDataList');
             });
           }
         }
@@ -52,9 +60,11 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> fetchData() async {
     try {
-      final response = await http.get(Uri.parse('https://dds-erp.com/olps/mobile/MobileCommon/getSupportContactDetails'));
+      final response = await http.get(Uri.parse(
+          'https://dds-erp.com/olps/mobile/MobileCommon/getSupportContactDetails'));
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+        final Map<String, dynamic> data =
+            json.decode(utf8.decode(response.bodyBytes));
         if (data['status'] == true) {
           final List<dynamic> supportContactList = data['support_contact_list'];
           if (supportContactList.isNotEmpty) {
@@ -96,25 +106,44 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+        final SharedPreferences prefs = await _prefs;
+
+        final Map<String, dynamic> data =
+            json.decode(utf8.decode(response.bodyBytes));
+            debugPrint('get Token Save -->${data['token']}');
+        prefs.setString('Token', 'Bearer ' + data['token']);
+        prefs.setString('deviceToken', data['device_token']);
+        prefs.setString('academic_year', selectedAcademicYear!);
         if (data['status'] == true) {
-          final List<dynamic> multipleUserList = data['multiple_user_data'];
+          final List multipleUserList = data['multiple_user_data'];
           if (multipleUserList.isNotEmpty) {
-            final Map<String, dynamic> userList = multipleUserList[0];
+            final List userList = multipleUserList;
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => MultipleUserScreen(
-                  username: usernameController.text.trim(),
-                  password: passwordController.text.trim(),
-                  academicYear: strloginType,
-                  multipleUserList: userList,
-                ),
+                    username: usernameController.text.trim(),
+                    password: passwordController.text.trim(),
+                    academicYear: selectedAcademicYear,
+                    multipleUserList: userList,
+                    selectedRadio: strloginType),
               ),
             );
           } else {
+            String url = baseUrl +
+                "?username=${usernameController.text.trim()}" +
+                "&password=${base64Encode(utf8.encode(passwordController.text))}" +
+                "&account_type=$strloginType" +
+                "&academic_year=$strloginType" +
+                "&regi_id=''" +
+                "&device_token=fj3f823jfo";
             setState(() {
-              
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CommonWebView(url: url),
+                ),(Route<dynamic> route) => false
+              );
             });
           }
         } else {
@@ -141,32 +170,34 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login'),
+        title: const Text('Login'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextFormField(
               controller: usernameController,
               decoration: InputDecoration(
-                prefixIcon: Icon(Icons.person),
+                prefixIcon: const Icon(Icons.person),
                 labelText: 'Username',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10.0),
                 ),
               ),
             ),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             TextFormField(
               controller: passwordController,
               obscureText: !isPasswordVisible,
               decoration: InputDecoration(
-                prefixIcon: Icon(Icons.lock),
+                prefixIcon: const Icon(Icons.lock),
                 labelText: 'Password',
                 suffixIcon: IconButton(
-                  icon: Icon(isPasswordVisible ? Icons.visibility : Icons.visibility_off),
+                  icon: Icon(isPasswordVisible
+                      ? Icons.visibility
+                      : Icons.visibility_off),
                   onPressed: () {
                     setState(() {
                       isPasswordVisible = !isPasswordVisible;
@@ -178,29 +209,30 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             DropdownButtonFormField(
               value: selectedAcademicYear,
               items: academicDataList.map((academicYear) {
                 return DropdownMenuItem<String>(
-                  value: academicYear['academic_year_id'],
+                  value: academicYear['academic_year_name'],
                   child: Text(academicYear['academic_year_name']),
                 );
               }).toList(),
               onChanged: (String? newValue) {
                 setState(() {
                   selectedAcademicYear = newValue!;
+                  print("get value year $selectedAcademicYear");
                 });
               },
               decoration: InputDecoration(
-                prefixIcon: Icon(Icons.calendar_today),
+                prefixIcon: const Icon(Icons.calendar_today),
                 labelText: 'Select Academic Year',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10.0),
                 ),
               ),
             ),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             Row(
               children: [
                 Radio(
@@ -208,28 +240,28 @@ class _LoginPageState extends State<LoginPage> {
                   groupValue: selectedRadio,
                   onChanged: (value) => handleRadioValueChanged(value as int),
                 ),
-                Text('Login as Teacher'),
+                const Text('Login as Teacher'),
                 Radio(
                   value: 2,
                   groupValue: selectedRadio,
                   onChanged: (value) => handleRadioValueChanged(value as int),
                 ),
-                Text('Login as Parent'),
+                const Text('Login as Parent'),
               ],
             ),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             ElevatedButton(
               onPressed: () {
                 login();
               },
-              child: Text('Login'),
+              child: const Text('Login'),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(
               'Mobile Number: $mobileNumber',
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(
               apiData,
               textAlign: TextAlign.center,
