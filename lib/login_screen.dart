@@ -99,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
           'username': usernameController.text,
           'password': passwordController.text,
           'account_type': strloginType,
-          'academic_year': selectedAcademicYear!,
+          // 'academic_year': selectedAcademicYear!,
           'regi_id': '',
           'device_token': 'fj3f823jfo',
         },
@@ -210,28 +210,28 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             const SizedBox(height: 20.0),
-            DropdownButtonFormField(
-              value: selectedAcademicYear,
-              items: academicDataList.map((academicYear) {
-                return DropdownMenuItem<String>(
-                  value: academicYear['academic_year_name'],
-                  child: Text(academicYear['academic_year_name']),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                setState(() {
-                  selectedAcademicYear = newValue!;
-                  print("get value year $selectedAcademicYear");
-                });
-              },
-              decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.calendar_today),
-                labelText: 'Select Academic Year',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-              ),
-            ),
+            // DropdownButtonFormField(
+            //   value: selectedAcademicYear,
+            //   items: academicDataList.map((academicYear) {
+            //     return DropdownMenuItem<String>(
+            //       value: academicYear['academic_year_name'],
+            //       child: Text(academicYear['academic_year_name']),
+            //     );
+            //   }).toList(),
+            //   onChanged: (String? newValue) {
+            //     setState(() {
+            //       selectedAcademicYear = newValue!;
+            //       print("get value year $selectedAcademicYear");
+            //     });
+            //   },
+            //   decoration: InputDecoration(
+            //     prefixIcon: const Icon(Icons.calendar_today),
+            //     labelText: 'Select Academic Year',
+            //     border: OutlineInputBorder(
+            //       borderRadius: BorderRadius.circular(10.0),
+            //     ),
+            //   ),
+            // ),
             const SizedBox(height: 20.0),
             Row(
               children: [
