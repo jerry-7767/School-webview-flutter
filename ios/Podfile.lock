@@ -32,8 +32,6 @@ PODS:
     - GoogleUtilities/UserDefaults (~> 8.1)
     - nanopb (~> 3.30910.0)
   - Flutter (1.0.0)
-  - flutter_native_splash (2.4.3):
-    - Flutter
   - flutter_webview_plugin_ios_android (0.0.1):
     - Flutter
   - GoogleDataTransport (10.1.0):
@@ -77,7 +75,6 @@ DEPENDENCIES:
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
   - Flutter (from `Flutter`)
-  - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
   - flutter_webview_plugin_ios_android (from `.symlinks/plugins/flutter_webview_plugin_ios_android/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
 
@@ -100,8 +97,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_messaging/ios"
   Flutter:
     :path: Flutter
-  flutter_native_splash:
-    :path: ".symlinks/plugins/flutter_native_splash/ios"
   flutter_webview_plugin_ios_android:
     :path: ".symlinks/plugins/flutter_webview_plugin_ios_android/ios"
   shared_preferences_foundation:
@@ -116,7 +111,6 @@ SPEC CHECKSUMS:
   FirebaseInstallations: 0ee9074f2c1e86561ace168ee1470dc67aabaf02
   FirebaseMessaging: 195bbdb73e6ca1dbc76cd46e73f3552c084ef6e4
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_native_splash: c32d145d68aeda5502d5f543ee38c192065986cf
   flutter_webview_plugin_ios_android: 8e9666e07fc1af90ebe641a866e9469435fa312c
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1

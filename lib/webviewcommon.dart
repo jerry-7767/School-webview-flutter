@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/login_screen.dart';
+import 'package:flutter_application_1/main.dart';
 import 'package:flutter_webview_plugin_ios_android/flutter_webview_plugin_ios_android.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -102,13 +103,13 @@ class _CommonWebViewState extends State<CommonWebView> {
   var selectedAcademicYear;
 
   getData() async {
-    final SharedPreferences prefs = await _prefs;
-    token = prefs.getString('Token');
-    deviceToken = prefs.getString('deviceToken');
-    selectedAcademicYear = prefs.getString('academic_year');
-    debugPrint("----->Token $token");
-    debugPrint("----->deviceToken $deviceToken");
-    debugPrint("----->selectedAcademicYear $selectedAcademicYear");
+    // final SharedPreferences prefs = await _prefs;
+    // token = prefs.getString('Token');
+    // deviceToken = prefs.getString('deviceToken');
+    // selectedAcademicYear = prefs.getString('academic_year');
+    // debugPrint("----->Token $token");
+    // debugPrint("----->deviceToken $deviceToken");
+    // debugPrint("----->selectedAcademicYear $selectedAcademicYear");
   }
 
   // Future<bool> getPermissions() async {
@@ -169,10 +170,6 @@ class _CommonWebViewState extends State<CommonWebView> {
           headers: header);
       print("Api call Done");
       if (response.statusCode == 200) {
-        Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => LoginPage()),
-            (Route<dynamic> route) => false);
       } else {
         throw Exception('Failed to load data');
       }
@@ -188,9 +185,13 @@ class _CommonWebViewState extends State<CommonWebView> {
         actions: [
           GestureDetector(
               onTap: () async {
-                Logout();
                 final SharedPreferences prefs = await _prefs;
                 prefs.clear();
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => CodeVerificationScreen()),
+                    (Route<dynamic> route) => false);
               },
               child: const Icon(Icons.logout))
         ],
@@ -230,3 +231,7 @@ class _CommonWebViewState extends State<CommonWebView> {
     );
   }
 }
+// School Code : RG-20242500002
+
+// Username : utsav.kathpalia@gmail.com / 8097939301
+// Password : 12345678
