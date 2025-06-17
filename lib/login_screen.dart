@@ -496,7 +496,8 @@ class _LoginScreenState extends State<LoginScreen> {
       // print("response is${response.body}");
 
       Navigator.of(context).pop(); // hide loading
-
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('isUserLogin', loginUrl.toString());
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(

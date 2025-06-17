@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/login_screen.dart';
+import 'package:flutter_application_1/webviewcommon.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -9,50 +10,8 @@ void main() {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
     initialRoute: 'login_screen',
-    routes: {'login_screen': (context) => DeciderScreen()},
+    routes: {'login_screen': (context) => SplashScreen()},
   ));
-}
-
-class DeciderScreen extends StatefulWidget {
-  const DeciderScreen({super.key});
-
-  @override
-  State<DeciderScreen> createState() => _DeciderScreenState();
-}
-
-class _DeciderScreenState extends State<DeciderScreen> {
-  @override
-  void initState() {
-    super.initState();
-    checkSplashUrl();
-  }
-
-  Future<void> checkSplashUrl() async {
-    final prefs = await SharedPreferences.getInstance();
-    final splashUrl = prefs.getString('splash_screen');
-print("===>$splashUrl");
-    if (splashUrl != null && splashUrl.isNotEmpty) {
-      // Go to splash screen if URL is saved
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => SplashScreen()),
-      );
-    } else {
-      // Else go to code register screen
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => CodeVerificationScreen()),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Optional loading UI
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
-    );
-  }
 }
 
 class SplashScreen extends StatefulWidget {
@@ -64,27 +23,48 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   String? splashUrl;
+  bool isPageLoading = false;
 
   @override
   void initState() {
     super.initState();
-    loadSplashUrl();
+    checkSplashUrl();
   }
 
-  Future<void> loadSplashUrl() async {
+  Future<void> checkSplashUrl() async {
+    isPageLoading = true;
     final prefs = await SharedPreferences.getInstance();
     final url = prefs.getString('splash_screen');
+    final userLogin = prefs.getString('isUserLogin');
+    print("===>$splashUrl");
 
     setState(() {
-      splashUrl = url;
-    });
+      if (url != null && url.isNotEmpty) {
+        isPageLoading = false;
 
-    // Optional: Navigate after few seconds
-    Future.delayed(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
+        splashUrl = url;
+        Future.delayed(const Duration(seconds: 3), () {
+          if (userLogin != null && userLogin.isNotEmpty) {
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => CommonWebView(
+                          url: userLogin,
+                        )));
+          } else {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const LoginScreen()),
+            );
+          }
+        });
+      } else {
+        isPageLoading = false;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const CodeVerificationScreen()),
+        );
+      }
     });
   }
 
@@ -92,18 +72,20 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Center(
-        child: splashUrl != null
-            ? Image.network(
-                splashUrl!,
-                height: 250,
-                width: 250,
-                fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) =>
-                    const Text('Failed to load image'),
-              )
-            : const CircularProgressIndicator(),
-      ),
+      body: isPageLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Center(
+              child: splashUrl != null
+                  ? Image.network(
+                      splashUrl!,
+                      height: 250,
+                      width: 250,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, __, ___) =>
+                          const Text('Failed to load image'),
+                    )
+                  : const CircularProgressIndicator(),
+            ),
     );
   }
 }
@@ -142,7 +124,7 @@ class _CodeVerificationScreenState extends State<CodeVerificationScreen> {
         await prefs.setString('access_token', accessData['access_token']);
         await prefs.setString('account_name', accessData['account_name']);
         await prefs.setString('splash_screen', accessData['splash_screen']);
-print("Splashscreenurl ${accessData['splash_screen']}");
+        print("Splashscreenurl ${accessData['splash_screen']}");
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => LoginScreen()),
